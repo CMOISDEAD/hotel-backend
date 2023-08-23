@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb+srv://VIKTORDOOM:Imnotafraid31@cluster0.f7m4yts.mongodb.net/hotel"
+  url      = env("DATABASE_URL")
 }
 
 model beds {

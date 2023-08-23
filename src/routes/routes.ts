@@ -11,9 +11,9 @@ router.get("/", (req: Request, res: Response) => {
 router.post("/rooms", async (req: Request, res: Response) => {
   // const { room } = req.body;
   const room = {
-    number: 1,
-    description: "test",
-    capacity: 1,
+    number: 2,
+    description: "test 2",
+    capacity: 2,
     price: 100,
     image: "image",
     status: "available",

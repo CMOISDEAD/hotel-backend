@@ -19,9 +19,9 @@ router.get("/", (req, res) => {
 router.post("/rooms", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // const { room } = req.body;
     const room = {
-        number: 1,
-        description: "test",
-        capacity: 1,
+        number: 2,
+        description: "test 2",
+        capacity: 2,
         price: 100,
         image: "image",
         status: "available",
