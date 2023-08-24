@@ -31,8 +31,9 @@ model rooms {
   beds        beds[]
 }
 
-model clients {
+model users {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  rol          String
   name         String
   lastname     String
   email        String
@@ -44,10 +45,10 @@ model clients {
 }
 
 model reservations {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
   room     Int
-  client   clients? @relation(fields: [clientId], references: [id])
-  clientId String?  @db.ObjectId
+  user     users?  @relation(fields: [clientId], references: [id])
+  clientId String? @db.ObjectId
   dateIn   String
   dateOut  String
   price    Int
