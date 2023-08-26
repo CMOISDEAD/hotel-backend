@@ -24,6 +24,17 @@ router.post("/rooms", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     yield prisma.rooms.create({ data: room });
     res.status(200).send("ok");
 }));
+// update a room on the collection
+router.put("/rooms/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const data = req.body;
+    delete data.id;
+    delete data.reservations;
+    delete data.beds;
+    const room = Object.assign({}, data);
+    yield prisma.rooms.update({ where: { id: id }, data: room });
+    res.status(200).send("ok");
+}));
 // get all rooms on the collection
 router.get("/rooms", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const rooms = yield prisma.rooms.findMany();
@@ -75,6 +86,13 @@ router.post("/reservations", (req, res) => __awaiter(void 0, void 0, void 0, fun
             status: "ocupado",
         },
     });
+    yield prisma.beds.updateMany({
+        where: { roomId: newReservation.roomId },
+        data: {
+            aviable: false,
+            status: "ocupado",
+        },
+    });
     res.status(200).send("ok");
 }));
 // get all reservations on the collection
@@ -82,12 +100,42 @@ router.get("/reservations", (req, res) => __awaiter(void 0, void 0, void 0, func
     const reservations = yield prisma.reservations.findMany();
     res.json(reservations);
 }));
+// get reservation by id
+router.get("/reservations/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const reservation = yield prisma.reservations.findUnique({
+        where: { id: id },
+        include: {
+            room: true,
+            user: true,
+        },
+    });
+    res.json(reservation);
+}));
+// update a reservation on the collection
+router.put("/reservation/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const data = req.body;
+    delete data.id;
+    delete data.room;
+    delete data.user;
+    const reservation = Object.assign({}, data);
+    yield prisma.reservations.update({ where: { id: id }, data: reservation });
+    res.status(200).send("ok");
+}));
 // remove a reservation from the collection by id and update the room status
 router.delete("/reservations/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const reservation = yield prisma.reservations.delete({ where: { id: id } });
     yield prisma.rooms.update({
         where: { id: reservation.roomId },
+        data: {
+            aviable: true,
+            status: "disponible",
+        },
+    });
+    yield prisma.beds.updateMany({
+        where: { roomId: reservation.roomId },
         data: {
             aviable: true,
             status: "disponible",
@@ -102,10 +150,33 @@ router.post("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     yield prisma.users.create({ data: user });
     res.status(200).send("ok");
 }));
+// update a user on the collection
+router.put("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const data = req.body;
+    delete data.id;
+    delete data.reservations;
+    const user = Object.assign({}, data);
+    yield prisma.users.update({ where: { id: id }, data: user });
+    res.status(200).send("ok");
+}));
 // get all users on the collection
 router.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield prisma.users.findMany();
     res.json(users);
+}));
+// get user by id
+router.get("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const user = yield prisma.users.findUnique({
+        where: { id: id },
+        include: {
+            reservations: {
+                include: { room: true },
+            },
+        },
+    });
+    res.json(user);
 }));
 // remove a user from the collection by id
 router.delete("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

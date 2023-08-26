@@ -23,6 +23,20 @@ router.post("/rooms", async (req: Request, res: Response) => {
   res.status(200).send("ok");
 });
 
+// update a room on the collection
+router.put("/rooms/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const data = req.body;
+  delete data.id;
+  delete data.reservations;
+  delete data.beds;
+  const room = {
+    ...data,
+  };
+  await prisma.rooms.update({ where: { id: id }, data: room });
+  res.status(200).send("ok");
+});
+
 // get all rooms on the collection
 router.get("/rooms", async (req: Request, res: Response) => {
   const rooms = await prisma.rooms.findMany();
@@ -83,6 +97,13 @@ router.post("/reservations", async (req: Request, res: Response) => {
       status: "ocupado",
     },
   });
+  await prisma.beds.updateMany({
+    where: { roomId: newReservation.roomId },
+    data: {
+      aviable: false,
+      status: "ocupado",
+    },
+  });
   res.status(200).send("ok");
 });
 
@@ -92,12 +113,46 @@ router.get("/reservations", async (req: Request, res: Response) => {
   res.json(reservations);
 });
 
+// get reservation by id
+router.get("/reservations/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const reservation = await prisma.reservations.findUnique({
+    where: { id: id },
+    include: {
+      room: true,
+      user: true,
+    },
+  });
+  res.json(reservation);
+});
+
+// update a reservation on the collection
+router.put("/reservation/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const data = req.body;
+  delete data.id;
+  delete data.room;
+  delete data.user;
+  const reservation = {
+    ...data,
+  };
+  await prisma.reservations.update({ where: { id: id }, data: reservation });
+  res.status(200).send("ok");
+});
+
 // remove a reservation from the collection by id and update the room status
 router.delete("/reservations/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   const reservation = await prisma.reservations.delete({ where: { id: id } });
   await prisma.rooms.update({
     where: { id: reservation.roomId },
+    data: {
+      aviable: true,
+      status: "disponible",
+    },
+  });
+  await prisma.beds.updateMany({
+    where: { roomId: reservation.roomId },
     data: {
       aviable: true,
       status: "disponible",
@@ -117,10 +172,37 @@ router.post("/users", async (req: Request, res: Response) => {
   res.status(200).send("ok");
 });
 
+// update a user on the collection
+router.put("/users/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const data = req.body;
+  delete data.id;
+  delete data.reservations;
+  const user = {
+    ...data,
+  };
+  await prisma.users.update({ where: { id: id }, data: user });
+  res.status(200).send("ok");
+});
+
 // get all users on the collection
 router.get("/users", async (req: Request, res: Response) => {
   const users = await prisma.users.findMany();
   res.json(users);
+});
+
+// get user by id
+router.get("/users/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = await prisma.users.findUnique({
+    where: { id: id },
+    include: {
+      reservations: {
+        include: { room: true },
+      },
+    },
+  });
+  res.json(user);
 });
 
 // remove a user from the collection by id
