@@ -12,9 +12,10 @@ router.get("/", (req: Request, res: Response) => {
 // save room on collection
 router.post("/rooms", async (req: Request, res: Response) => {
   const data = req.body;
+  delete data.beds;
   const room = {
     ...data,
-    beds: {},
+    capacity: parseInt(data.capacity),
     number: parseInt(data.number),
     price: parseInt(data.price),
     aviable: parseBoolean(data.aviable),
@@ -32,6 +33,10 @@ router.put("/rooms/:id", async (req: Request, res: Response) => {
   delete data.beds;
   const room = {
     ...data,
+    capacity: parseInt(data.capacity),
+    number: parseInt(data.number),
+    price: parseInt(data.price),
+    aviable: parseBoolean(data.aviable),
   };
   await prisma.rooms.update({ where: { id: id }, data: room });
   res.status(200).send("ok");
@@ -56,6 +61,9 @@ router.get("/rooms/:id", async (req: Request, res: Response) => {
 // remove a room from the collection by id
 router.delete("/rooms/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
+  await prisma.reservations.deleteMany({
+    where: { roomId: id },
+  });
   await prisma.rooms.delete({ where: { id: id } });
   res.status(200).send("ok");
 });

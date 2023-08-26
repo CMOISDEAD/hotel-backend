@@ -20,7 +20,8 @@ router.get("/", (req, res) => {
 // save room on collection
 router.post("/rooms", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const data = req.body;
-    const room = Object.assign(Object.assign({}, data), { beds: {}, number: parseInt(data.number), price: parseInt(data.price), aviable: (0, utils_1.parseBoolean)(data.aviable) });
+    delete data.beds;
+    const room = Object.assign(Object.assign({}, data), { capacity: parseInt(data.capacity), number: parseInt(data.number), price: parseInt(data.price), aviable: (0, utils_1.parseBoolean)(data.aviable) });
     yield prisma.rooms.create({ data: room });
     res.status(200).send("ok");
 }));
@@ -31,7 +32,7 @@ router.put("/rooms/:id", (req, res) => __awaiter(void 0, void 0, void 0, functio
     delete data.id;
     delete data.reservations;
     delete data.beds;
-    const room = Object.assign({}, data);
+    const room = Object.assign(Object.assign({}, data), { capacity: parseInt(data.capacity), number: parseInt(data.number), price: parseInt(data.price), aviable: (0, utils_1.parseBoolean)(data.aviable) });
     yield prisma.rooms.update({ where: { id: id }, data: room });
     res.status(200).send("ok");
 }));
@@ -52,6 +53,9 @@ router.get("/rooms/:id", (req, res) => __awaiter(void 0, void 0, void 0, functio
 // remove a room from the collection by id
 router.delete("/rooms/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
+    yield prisma.reservations.deleteMany({
+        where: { roomId: id },
+    });
     yield prisma.rooms.delete({ where: { id: id } });
     res.status(200).send("ok");
 }));
