@@ -220,6 +220,37 @@ router.delete("/users/:id", async (req: Request, res: Response) => {
   res.status(200).send("ok");
 });
 
+// auth login
+router.post("/auth/login", async (req: Request, res: Response) => {
+  const user = req.body;
+  const userDB = await prisma.users.findUnique({
+    where: {
+      username: user.username,
+    },
+    include: {
+      reservations: {
+        include: { room: true },
+      },
+    },
+  });
+  if (!userDB) return res.status(400).send("User not found");
+  if (userDB.password !== user.password)
+    return res.status(400).send("Password incorrect");
+  res.json(userDB);
+});
+
+router.post("/auth/register", async (req: Request, res: Response) => {
+  const user = req.body;
+  const userDB = await prisma.users.findUnique({
+    where: {
+      username: user.username,
+    },
+  });
+  if (userDB) return res.status(400).send("User already exists");
+  const newUser = await prisma.users.create({ data: user });
+  res.status(200).json(newUser);
+});
+
 // get all data on the collection
 router.get("/all", async (req: Request, res: Response) => {
   const beds = await prisma.beds.findMany({ include: { room: true } });

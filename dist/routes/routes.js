@@ -188,6 +188,37 @@ router.delete("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, func
     yield prisma.users.delete({ where: { id: id } });
     res.status(200).send("ok");
 }));
+// auth login
+router.post("/auth/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.body;
+    const userDB = yield prisma.users.findUnique({
+        where: {
+            username: user.username,
+        },
+        include: {
+            reservations: {
+                include: { room: true },
+            },
+        },
+    });
+    if (!userDB)
+        return res.status(400).send("User not found");
+    if (userDB.password !== user.password)
+        return res.status(400).send("Password incorrect");
+    res.json(userDB);
+}));
+router.post("/auth/register", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.body;
+    const userDB = yield prisma.users.findUnique({
+        where: {
+            username: user.username,
+        },
+    });
+    if (userDB)
+        return res.status(400).send("User already exists");
+    const newUser = yield prisma.users.create({ data: user });
+    res.status(200).json(newUser);
+}));
 // get all data on the collection
 router.get("/all", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const beds = yield prisma.beds.findMany({ include: { room: true } });
