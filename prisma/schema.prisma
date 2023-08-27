@@ -37,6 +37,8 @@ model users {
   rol          String         @default("USER")
   name         String
   lastname     String
+  username     String         @unique
+  password     String
   email        String
   phone        String
   address      String
