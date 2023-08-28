@@ -7,13 +7,13 @@ Backend de el proyecto del hotel, desarrollado en Express, MongoDB y NodeJS.
 - NodeJS
 - NPM
 - MongoDB
-- Frontend de la aplicación, [Frontend](https://github.com/CMOISDEAD/hotels-frontend)
+- Frontend de la aplicación, [Frontend](https://github.com/CMOISDEAD/hotel-frontend)
 
 ## Instalación
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/CMOISDEAD/hotels-backend.git
+git clone https://github.com/CMOISDEAD/hotel-backend.git
 
 # Entrar al directorio
 cd hotels-backend
