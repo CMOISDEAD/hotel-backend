@@ -1,6 +1,6 @@
-# Hotels Cocora (Backend)
+# Hotel (Backend)
 
-Backend de el proyecto de hoteles de cocora, desarrollado en Express, MongoDB y NodeJS.
+Backend de el proyecto del hotel, desarrollado en Express, MongoDB y NodeJS.
 
 ## Requerimientos
 
